@@ -1,8 +1,9 @@
 import random
 import string
 
-from flask import render_template, flash, redirect, url_for
+from flask import render_template, flash, redirect, abort
 
+from yacut.constants import DUPLICATE_MESSAGE
 from yacut.forms import CutForm
 from yacut.models import URLMap
 from . import app, db
@@ -12,33 +13,26 @@ from . import app, db
 def service_page():
     form = CutForm()
     if form.validate_on_submit():
-        if form.custom_id:
-            link = URLMap.query.filter_by(short=form.custom_id.data).first()
+        if form.custom_id.data:
+            short_link = form.custom_id.data
+            link = URLMap.query.filter_by(short=short_link).first()
             if link:
-                flash('Такая ссылка уже существует')
-                return render_template('index.html', form=form)
-            cut_url = URLMap(
-                original=form.original_link.data,
-                short=form.custom_id.data
-            )
-            db.session.add(cut_url)
-            db.session.commit()
-            return render_template('index.html', form=form, cut_url=cut_url.short)
+                flash(DUPLICATE_MESSAGE)
+                return render_template('cutter.html', form=form)
+        else:
+            short_link = get_unique_short_id()
+            while URLMap.query.filter_by(short=short_link).first():
+                short_link = get_unique_short_id()
 
-        while True:
-            random_url = get_unique_short_id()
-            link = URLMap.query.filter_by(short=random_url).first()
-            if not link:
-                break
         cut_url = URLMap(
             original=form.original_link.data,
-            short=random_url
+            short=short_link
         )
         db.session.add(cut_url)
         db.session.commit()
-        return render_template('index.html', form=form, cut_url=cut_url)
+        return render_template('cutter.html', form=form, cut_url=cut_url.short)
 
-    return render_template('index.html', form=form)
+    return render_template('cutter.html', form=form)
 
 
 @app.route('/<string:short_link>')
@@ -47,7 +41,7 @@ def redirect_link(short_link):
     if external_link:
         return redirect(external_link.original)
 
-    return ...
+    return abort(404)
 
 
 def get_unique_short_id():
