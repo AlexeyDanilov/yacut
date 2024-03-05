@@ -5,6 +5,11 @@ from flask import render_template, jsonify
 from . import app
 
 
+class CreateLinkException(Exception):
+    def __init__(self, message):
+        self.message = message
+
+
 class InvalidAPIUsage(Exception):
     status_code = HTTPStatus.BAD_REQUEST
 

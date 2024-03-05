@@ -14,7 +14,7 @@ from .constants import (
     MAX_LENGTH_SHORT_ID,
     REDIRECT_URL
 )
-from .error_handlers import InvalidAPIUsage
+from .error_handlers import CreateLinkException
 
 
 class URLMap(db.Model):
@@ -36,11 +36,11 @@ class URLMap(db.Model):
     @staticmethod
     def create_link(data):
         if URLMap.get_link(data.get('custom_id')):
-            raise InvalidAPIUsage(DUPLICATE_MESSAGE)
+            raise CreateLinkException(DUPLICATE_MESSAGE)
         if 'custom_id' in data and data.get('custom_id') and len(data.get('custom_id')) > 16:
-            raise InvalidAPIUsage(WRONG_LINK_NAME_MESSAGE)
+            raise CreateLinkException(WRONG_LINK_NAME_MESSAGE)
         if 'custom_id' in data and data.get('custom_id') and not re.match(REG_EXPRESSION, data.get('custom_id')):
-            raise InvalidAPIUsage(WRONG_LINK_NAME_MESSAGE)
+            raise CreateLinkException(WRONG_LINK_NAME_MESSAGE)
         if 'custom_id' not in data or not data.get('custom_id'):
             short_link = URLMap.get_unique_short_id()
             data['custom_id'] = short_link

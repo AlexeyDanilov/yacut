@@ -75,12 +75,18 @@ python3 -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
+Применить миграции:
+
+```
+flask db upgrade
+```
+
 Запустить проект на локальном сервере:
 
 ```
 flask run
 ```
 
-**Автор:** Алексей Данилов
+**Автор:** [Алексей Данилов](https://github.com/AlexeyDanilov/)
 
 Проект доступен [по ссылке](https://github.com/AlexeyDanilov/yacut)

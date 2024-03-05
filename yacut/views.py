@@ -1,5 +1,6 @@
 from flask import render_template, redirect, flash
 
+from yacut.error_handlers import CreateLinkException
 from yacut.forms import CutForm
 from yacut.models import URLMap
 from . import app
@@ -12,7 +13,7 @@ def service_page():
         try:
             cut_url = URLMap.create_link(form.data)
             return render_template('cutter.html', form=form, cut_url=cut_url.short)
-        except Exception as e:
+        except CreateLinkException as e:
             flash(e.args[0])
 
     return render_template('cutter.html', form=form)

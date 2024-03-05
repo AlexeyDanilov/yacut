@@ -3,7 +3,7 @@ from http import HTTPStatus
 from flask import request, jsonify
 
 from . import app
-from .error_handlers import InvalidAPIUsage
+from .error_handlers import InvalidAPIUsage, CreateLinkException
 from .models import URLMap
 
 
@@ -14,7 +14,10 @@ def create_short_link():
         raise InvalidAPIUsage('Отсутствует тело запроса')
     if 'url' not in data:
         raise InvalidAPIUsage('"url" является обязательным полем!')
-    url = URLMap.create_link(data)
+    try:
+        url = URLMap.create_link(data)
+    except CreateLinkException as e:
+        raise InvalidAPIUsage(e.args[0])
     return jsonify(url.to_dict()), HTTPStatus.CREATED
 
 
